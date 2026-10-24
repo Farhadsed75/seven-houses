@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#122c31">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Seven Houses">
+  <meta name="description" content="Offline Persian to English flashcards with your 7-house schedule.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <link rel="icon" href="./icon-192.png" type="image/png">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Seven Houses — Persian to English</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">۷</div>
+        <div>
+          <h1>Seven Houses</h1>
+          <p>Persian <span aria-hidden="true">→</span> English · Leitner practice</p>
+        </div>
+      </div>
+      <button class="outline small" id="add-top" type="button">+ Add word</button>
+    </header>
+
+    <main>
+      <section class="overview" aria-labelledby="overview-heading">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">YOUR PRACTICE TODAY</div>
+            <h2 id="overview-heading">Review dashboard</h2>
+          </div>
+          <div class="date-chip" id="local-date">—</div>
+        </div>
+        <div class="schedule-line" id="schedule-line">—</div>
+        <div class="overview-stats">
+          <div><span class="stat-number" id="due-total">0</span><span class="stat-label">Due now</span></div>
+          <div><span class="stat-number" id="total-words">0</span><span class="stat-label">All words</span></div>
+          <div><span class="stat-number" id="reviewed-today">0</span><span class="stat-label">Reviewed today</span></div>
+        </div>
+        <div class="house-grid" id="house-grid" aria-label="Due and total word counts by house"></div>
+        <p class="microcopy">Each tile shows <strong>remaining due / total cards</strong>. Reviews reset using your phone's local calendar.</p>
+      </section>
+
+      <section class="review-section" aria-labelledby="review-heading">
+        <div class="section-head review-head">
+          <div>
+            <div class="eyebrow">FLASHCARD SESSION</div>
+            <h2 id="review-heading">Practice</h2>
+          </div>
+          <div class="mini-progress" id="session-progress">0 answered</div>
+        </div>
+        <div class="review-card">
+          <div class="card-topline">
+            <span class="house-tag" id="active-house">House —</span>
+            <span class="card-step" id="card-step">Ready</span>
+          </div>
+          <div id="practice-area">
+            <div class="word-label">TRANSLATE INTO ENGLISH</div>
+            <div class="persian-word" lang="fa" dir="rtl" id="persian-word">Add a word to begin</div>
+            <form id="answer-form" autocomplete="off">
+              <label for="answer-input">Your English answer</label>
+              <input id="answer-input" type="text" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="go" placeholder="Type English translation…" disabled>
+              <p class="input-hint" id="answer-hint">Press Enter to check; press Enter again for the next card.</p>
+              <div id="feedback" class="feedback" aria-live="polite" hidden></div>
+              <div class="review-buttons">
+                <button class="primary" id="check-button" type="submit" disabled>Check answer</button>
+                <button class="primary" id="next-button" type="button" disabled hidden>Next word →</button>
+                <button class="subtle" id="skip-button" type="button" disabled>Skip for now</button>
+              </div>
+            </form>
+          </div>
+          <div class="empty-state" id="empty-state" hidden>
+            <div class="empty-symbol">✓</div>
+            <h3>You're all caught up</h3>
+            <p>No more cards are due today. Come back on your next review day, or add another word.</p>
+            <button class="primary" type="button" id="empty-add">+ Add your first word</button>
+          </div>
+        </div>
+        <div class="session-foot">
+          <span id="accuracy-text">Session accuracy: —</span>
+          <button type="button" class="text-button" id="rebuild-button">Refresh today's reviews</button>
+        </div>
+      </section>
+
+      <section class="manage-section" aria-labelledby="manage-heading">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">YOUR VOCABULARY</div>
+            <h2 id="manage-heading">Manage words</h2>
+          </div>
+          <button class="outline small" id="add-manage" type="button">+ New</button>
+        </div>
+        <label class="search-label" for="search-input">Search English, Persian, or house number</label>
+        <input class="search-input" id="search-input" type="search" placeholder="Search your word list…" autocomplete="off">
+        <div id="words-list" class="words-list"></div>
+        <div id="list-footer" class="list-footer"></div>
+      </section>
+
+      <section class="backup-section" aria-labelledby="backup-heading">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">YOUR DATA STAYS ON THIS DEVICE</div>
+            <h2 id="backup-heading">Backup & restore</h2>
+          </div>
+        </div>
+        <p>Words and house progress are saved on this phone, not on a server. Export a backup regularly, especially before removing the app or clearing website data.</p>
+        <div class="backup-actions">
+          <button class="outline" id="export-button" type="button">↓ Export JSON backup</button>
+          <label class="outline file-label" for="import-file">↑ Import JSON backup</label>
+          <input type="file" id="import-file" accept=".json,application/json" hidden>
+        </div>
+        <p class="microcopy">Compatible with the <code>leitner_words.json</code> format from your Python app. Import merges without overwriting existing word pairs.</p>
+      </section>
+      <footer class="page-footer">No subscription · No account · Offline after initial install</footer>
+    </main>
+  </div>
+
+  <dialog id="word-dialog" aria-labelledby="dialog-heading">
+    <form id="word-form" class="modal-form">
+      <div class="modal-head">
+        <h2 id="dialog-heading">Add word</h2>
+        <button class="close-dialog" id="close-dialog" type="button" aria-label="Close">×</button>
+      </div>
+      <label for="fa-field">Persian word / phrase</label>
+      <input id="fa-field" type="text" required maxlength="300" dir="auto" placeholder="مثلاً: درخت">
+      <label for="en-field">English answer (ground truth)</label>
+      <input id="en-field" type="text" required maxlength="300" autocomplete="off" placeholder="e.g. tree">
+      <label for="house-field">House</label>
+      <select id="house-field">
+        <option value="1">House 1 — Daily</option>
+        <option value="2">House 2 — Daily</option>
+        <option value="3">House 3 — Daily</option>
+        <option value="4">House 4 — Friday</option>
+        <option value="5">House 5 — Friday</option>
+        <option value="6">House 6 — 25th</option>
+        <option value="7">House 7 — Every two months</option>
+      </select>
+      <div class="modal-buttons">
+        <button type="button" class="subtle" id="cancel-dialog">Cancel</button>
+        <button class="primary" type="submit" id="save-word">Save word</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./logic.js" defer></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>
